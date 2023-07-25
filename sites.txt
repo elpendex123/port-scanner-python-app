@@ -1,0 +1,10 @@
+google.com
+yahoo.com
+github.com
+altavista.com
+azchords.com
+spring.io
+en.dnstools.ch
+makeuseof.com
+geeksforgeeks.org
+comparitech.com

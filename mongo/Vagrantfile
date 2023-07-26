@@ -1,0 +1,30 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "UPDATE PACKAGE LISTS"
+    sudo apt-get update
+
+    echo "INSTALL MONGODB"
+    sudo apt-get install -y mongodb
+
+    echo "START MONGODB SERVICE"
+    sudo systemctl start mongodb
+
+    echo "ENABLE MONGODB SERVICE TO START ON BOOT"
+    # sudo systemctl enable mongodb
+
+    echo "CREATE A NON ROOT USER AND ADD TO THE SUDO GROUP"
+    # sudo useradd -m -s /bin/bash vagrant
+    # sudo usermod -aG sudo vagrant
+
+    echo "SET PASSWORD FOR THE NON-ROOT USER (WILL BE ASKED TO ENTER THE PASSWORD)"
+    # sudo passwd vagrant
+
+    # echo Allow the non-root user to execute commands without a password prompt
+    # echo "vagrant ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/vagrant
+
+    echo "SET THE PASSWORD FOR THE ROOT USER (WILL BE ASKED TO ENTER THE PASSWORD)"
+    # sudo passwd root
+  SHELL
+end

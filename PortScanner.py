@@ -5,6 +5,7 @@ import socket
 import threading
 from queue import Queue
 from Configuration import my_host, my_port, my_user, my_password
+import sys
 
 ###############################################################################
 
@@ -19,8 +20,8 @@ def main():
     # Create a queue to hold port numbers
     port_queue = Queue()
 
-    # Populate the port queue
-    for ports in range(1, 1000):
+    # Populate the port queue (only first 50 for testing purposes)
+    for ports in range(1, 50):
         port_queue.put(ports)
 
     # Connect to MySQL and create cursor
@@ -43,21 +44,18 @@ def main():
     socket.setdefaulttimeout(2)
 
     # Prompt user for destination and resolve IP addresses
-    destinations = input("Enter the destinations: ").split(",")
-    print("destinations: ", destinations)
-    hostIPs = []
+    if len(sys.argv) > 1:
+        destinations = " ".join(sys.argv[1:]).split()
+    else:
+        destinations = input("Enter the destinations: ").split()
+
     for destination in destinations:
         hostIP = socket.gethostbyname(destination.strip())
-        print("hostIP: ", hostIP)
-        hostIPs.append(hostIP)
-        print("hostIPs: ", hostIPs)
-    print("Scanning the host IP:", hostIPs)
-
-    # Create and start threads
-    for i in range(100):
-        thread = threading.Thread(target=scan_ports, args=(destinations[0], hostIPs[0], port_queue, mycursor, object_lock, mysql_db))
-        thread.daemon = True
-        thread.start()
+        print("Scanning the host IP:", hostIP)
+        for i in range(100):
+            thread = threading.Thread(target=scan_ports, args=(destinations, port_queue, mycursor, object_lock, mysql_db))
+            thread.daemon = True
+            thread.start()
 
     # Wait for all threads to complete
     port_queue.join()
@@ -81,7 +79,7 @@ def connect_mysql():
 ###############################################################################
 
 # Define port scanning function
-def portscanner(destination, hostIP, ports, mycursor, object_lock, mysql_db):
+def port_scanner(destination, hostIP, ports, mycursor, object_lock, mysql_db):
     soxx = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         connection = soxx.connect((hostIP, ports))
@@ -97,10 +95,12 @@ def portscanner(destination, hostIP, ports, mycursor, object_lock, mysql_db):
 ###############################################################################
 
 # Function to scan ports
-def scan_ports(destination, hostIP, port_queue, mycursor, object_lock, mysql_db):
+def scan_ports(destinations, port_queue, mycursor, object_lock, mysql_db):
     while not port_queue.empty():
         ports = port_queue.get()
-        portscanner(destination, hostIP, ports, mycursor, object_lock, mysql_db)
+        for destination in destinations:
+            hostIP = socket.gethostbyname(destination.strip())
+            port_scanner(destination, hostIP, ports, mycursor, object_lock, mysql_db)
         port_queue.task_done()
 
 ###############################################################################

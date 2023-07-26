@@ -1,10 +1,10 @@
+azchords.com
+github.com
+en.dnstools.ch
+geeksforgeeks.org
 google.com
 yahoo.com
-github.com
 altavista.com
-azchords.com
 spring.io
-en.dnstools.ch
 makeuseof.com
-geeksforgeeks.org
 comparitech.com
